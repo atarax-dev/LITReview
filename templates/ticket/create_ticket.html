@@ -1,0 +1,16 @@
+{% extends "base_template.html" %}
+{% block title %}Créer un ticket{% endblock %}
+{% block content %}
+
+<div class="book">
+    <h3 class="h3ticket">Créer un ticket</h3>
+    <br>
+    <form action="{% url 'ticket:ticket' %}" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <input type="submit">
+    </form>
+
+    {% endblock %}
+
