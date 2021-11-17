@@ -4,15 +4,16 @@
 <div class="review_buttons">
 <br>
 <a href="create_ticket"><button type="submit">Demander une critique</button></a>
-<button type="submit">Créer une critique</button>
+<a href="create_review"><button type="submit">Créer une critique</button></a>
 <br>
 </div>
 <div class="feed">
+    <p>Salut {{ request.user }}</p>
     {% for post in posts %}
         {% if post.content_type == 'TICKET' %}
             {% include 'ticket/ticket_snippet.html' %}
         {% elif post.content_type == 'REVIEW' %}
-            {% include 'review_snippet.html' %}
+            {% include 'review/review_snippet.html' %}
         {% endif %}
     {% endfor %}
 </div>

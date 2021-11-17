@@ -1,4 +1,3 @@
-
 <div class="ticket_snippet">
     <div>
         <p>{{post.user}} a demandé une critique</p>
@@ -7,8 +6,17 @@
     <div>
         <p>{{post.title}}</p>
         <p>{{post.description}}</p>
-        <p>{{post.image}}</p>
-        <button type="submit">Créer une critique</button>
+        
+        
+        {% if post.image %}
+        <img src="{{ post.image.url }}" alt="arf">
+        {% endif %}
+        <form action="create_review/" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% post.id %}
+
+            <a href="create_review/"><button type="submit">Créer une critique</button></a>
+        </form>
         # button si le user en cours n'a pas déjà répondu
         <br>
         <br>

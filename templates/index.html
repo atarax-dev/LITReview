@@ -1,4 +1,5 @@
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -10,6 +11,7 @@
 <header>
     <h3>LITReview</h3>
 </header>
+
 <body>
     <div class="login-reg-panel">
         <div class="login-info-box">
@@ -29,19 +31,23 @@
         <div class="white-panel">
             <div class="login-show">
                 <h2>Se connecter</h2>
-                <input type="text" placeholder="Nom d'utilisateur">
-                <input type="password" placeholder="Mot de passe">
-                <input type="submit" value="Se connecter">
+                <form action="/flux/log_user" method="POST">
+                    {% csrf_token %}
+                    <input type="text" name="username" placeholder="Nom d'utilisateur">
+                    <input type="password" name="password" placeholder="Mot de passe">
+                    <input type="submit" value="Se connecter">
+                </form>
 
             </div>
             <div class="register-show">
                 <h2>S'inscrire</h2>
                 <form action="/flux/create_user" method="POST">
-                <input type="text" name="register_name" placeholder="Nom d'utilisateur">
-                <input type="password" name="pass1" placeholder="Mot de passe">
-                <input type="password" name = "pass2" placeholder="Confirmez le mot de passe">
-                <input type="submit" value="S'inscrire">
-            </form>
+                    {% csrf_token %}
+                    <input type="text" name="register_name" placeholder="Nom d'utilisateur">
+                    <input type="password" name="pass1" placeholder="Mot de passe">
+                    <input type="password" name="pass2" placeholder="Confirmez le mot de passe">
+                    <input type="submit" value="S'inscrire">
+                </form>
             </div>
         </div>
     </div>

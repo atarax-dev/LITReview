@@ -16,7 +16,9 @@ Including another URLconf
 from django.conf.urls import include
 from django.contrib import admin
 from django.urls import path
-from LITReview.views import home_view, flux_view, abos_view, posts_view
+from LITReview.views import create_user, home_view, flux_view, abos_view, log_user, logout_user, posts_view
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,7 +28,11 @@ urlpatterns = [
     path('abos/', abos_view, name= 'abos'),
     path('posts/', posts_view, name= 'posts'),
     path('flux/create_ticket/', include('ticket.urls',namespace='ticket')),
-    path('flux/', posts_view, name= 'posts'),
+    path('flux/create_user', create_user, name= 'create_user'),
+    path('flux/log_user', log_user, name= 'log_user'),
+    path('logout_user/', logout_user, name= 'logout_user'),
+    path('flux/create_review/', include('review.urls' ,namespace='review')),
+    path('create_review/', include('review.urls' ,namespace='review')),
 
 
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

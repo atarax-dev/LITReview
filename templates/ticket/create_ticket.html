@@ -5,7 +5,7 @@
 <div class="book">
     <h3 class="h3ticket">Créer un ticket</h3>
     <br>
-    <form action="{% url 'ticket:ticket' %}" method="post">
+    <form action="{% url 'ticket:ticket' %}" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}
 
