@@ -32,7 +32,6 @@ urlpatterns = [
     path('flux/log_user', log_user, name= 'log_user'),
     path('logout_user/', logout_user, name= 'logout_user'),
     path('flux/create_review/', include('review.urls' ,namespace='review')),
-    path('create_review/', include('review.urls' ,namespace='review')),
 
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -20,16 +20,16 @@ def home_view(request):
 
 @login_required
 def flux_view(request):
-    # reviews = get_users_viewable_reviews(request.user)
-    # reviews = reviews.annotate(content_type=Value('REVIEW', CharField()))
+    reviews = get_users_viewable_reviews(request.user)
+    reviews = reviews.annotate(content_type=Value('REVIEW', CharField()))
     tickets = get_users_viewable_tickets()
     tickets = tickets.annotate(content_type=Value('TICKET', CharField()))
-    posts = tickets
-    # posts = sorted(chain(reviews, tickets), key=lambda post: post.time_created, reverse=True)
+    posts = sorted(chain(reviews, tickets), key=lambda post: post.time_created, reverse=True)
     return render(request, 'flux/flux.html', context={'posts': posts})
 
 def get_users_viewable_reviews(user):
-    # TODO 
+    reviews_list = Review.objects.all()
+    return reviews_list 
     pass
 
 def get_users_viewable_tickets():

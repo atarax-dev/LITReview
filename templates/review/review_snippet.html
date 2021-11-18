@@ -1,0 +1,13 @@
+<div class="ticket_snippet">
+    <div>
+        <p>{{post.user}} a répondu à {% include 'ticket/ticket_snippet.html' with post=post.ticket %} </p>
+        <p>{{post.time_created}}</p>
+    </div>
+    <div>
+        <p>{{post.headline}}</p>
+        <p>{{post.body}}</p>
+
+        <br>
+        <br>
+    </div>
+</div>

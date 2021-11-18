@@ -5,5 +5,6 @@ from review.views import create_review_view
 app_name = 'review'
 urlpatterns = [
     path('', create_review_view, name='review'),
+    path('<int:ticket_id>/', create_review_view),
 
 ]

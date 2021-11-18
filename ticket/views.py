@@ -20,3 +20,6 @@ def create_ticket_view(request):
             return redirect('flux')
         else :
             return redirect('flux')
+
+
+

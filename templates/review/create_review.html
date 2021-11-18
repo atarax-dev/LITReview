@@ -5,7 +5,8 @@
 <div class="book">
     <h3 class="h3ticket">Créer une critique</h3>
     <br>
-    <form action="{% url 'review:review' %}" method="post">
+    <p>Vous répondez à  {% include 'ticket/ticket_snippet.html' with post=ticket %}</p>
+    <form action="#" method="post">
         {% csrf_token %}
         {{ form.as_p }}
 
