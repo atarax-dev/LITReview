@@ -25,7 +25,8 @@ def flux_view(request):
     tickets = get_users_viewable_tickets()
     tickets = tickets.annotate(content_type=Value('TICKET', CharField()))
     posts = sorted(chain(reviews, tickets), key=lambda post: post.time_created, reverse=True)
-    return render(request, 'flux/flux.html', context={'posts': posts})
+    answered_tickets = get_user_answered_tickets(request.user)
+    return render(request, 'flux/flux.html', context={'posts': posts, 'answered_tickets':answered_tickets})
 
 def get_users_viewable_reviews(user):
     reviews_list = Review.objects.all()
@@ -35,6 +36,15 @@ def get_users_viewable_reviews(user):
 def get_users_viewable_tickets():
     tickets_list = Ticket.objects.all()
     return tickets_list
+
+
+def get_user_answered_tickets(userx):
+    reviews_list = Review.objects.filter(user= userx)
+    answers_list = []
+    for review in reviews_list:
+        answer = review.ticket
+        answers_list.append(answer)
+    return answers_list
     
 
 def abos_view(request):

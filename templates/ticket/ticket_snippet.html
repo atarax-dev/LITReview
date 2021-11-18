@@ -11,9 +11,9 @@
         {% if post.image %}
         <img src="{{ post.image.url }}" alt="arf">
         {% endif %}
-
+        {% if post not in answered_tickets %}
         <a href="create_review/{{ post.id }}/"><button type="submit">Créer une critique</button></a>
-        # button si le user en cours n'a pas déjà répondu
+        {% endif %}
         <br>
         <br>
     </div>
