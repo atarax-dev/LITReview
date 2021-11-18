@@ -6,6 +6,7 @@ from django.http.response import HttpResponse
 from django.shortcuts import redirect, render
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from review.forms import ReviewForm
 
 
 from review.models import Review
@@ -20,20 +21,20 @@ def home_view(request):
 
 @login_required
 def flux_view(request):
-    reviews = get_users_viewable_reviews(request.user)
+    reviews = get_all_reviews(request.user)
     reviews = reviews.annotate(content_type=Value('REVIEW', CharField()))
-    tickets = get_users_viewable_tickets()
+    tickets = get_all_tickets()
     tickets = tickets.annotate(content_type=Value('TICKET', CharField()))
     posts = sorted(chain(reviews, tickets), key=lambda post: post.time_created, reverse=True)
     answered_tickets = get_user_answered_tickets(request.user)
     return render(request, 'flux/flux.html', context={'posts': posts, 'answered_tickets':answered_tickets})
 
-def get_users_viewable_reviews(user):
+def get_all_reviews(user):
     reviews_list = Review.objects.all()
     return reviews_list 
-    pass
 
-def get_users_viewable_tickets():
+
+def get_all_tickets():
     tickets_list = Ticket.objects.all()
     return tickets_list
 
@@ -51,8 +52,22 @@ def abos_view(request):
     return render(request, 'abonnements/abos.html')
 
 def posts_view(request):
-    return render(request, 'posts/posts.html')
+   
+    reviews = get_user_reviews(request.user)
+    reviews = reviews.annotate(content_type=Value('REVIEW', CharField()))
+    tickets = get_user_tickets(request.user)
+    tickets = tickets.annotate(content_type=Value('TICKET', CharField()))
+    posts = sorted(chain(reviews, tickets), key=lambda post: post.time_created, reverse=True)
 
+    return render(request, 'posts/posts.html', context={'posts': posts})
+
+def get_user_reviews(userx):
+    reviews_list = Review.objects.filter(user= userx)
+    return reviews_list 
+
+def get_user_tickets(userx):
+    tickets_list = Ticket.objects.filter(user= userx)
+    return tickets_list
 
 def create_user(request):
     # récupérer les données du formulaire
@@ -96,4 +111,34 @@ def log_user(request):
 
 def logout_user(request):
     logout(request)
-    return redirect('/') 
+    return redirect('/')
+
+def modify_view(request, content_type, content_id):
+    if request.method == "GET":
+        if content_type == "REVIEW":
+            requested_content = Review.objects.get(pk= content_id)
+            form = ReviewForm(instance=requested_content)
+            
+        elif content_type == "TICKET":
+            requested_content = Ticket.objects.get(pk= content_id)
+            form = TicketForm(instance=requested_content)
+
+        return render(request, 'ticket/modify.html', locals())
+    elif request.method == "POST" and content_type == "REVIEW":
+        instance_review = Review.objects.get(pk= content_id)
+        form = ReviewForm(request.POST, request.FILES, instance=instance_review)
+        form_review = form.save(commit=False)
+        if form.is_valid():
+            form_review.save()
+        return redirect('posts')
+    elif request.method == "POST" and content_type == "TICKET":
+        instance_ticket = Ticket.objects.get(pk= content_id)
+        form = TicketForm(request.POST, request.FILES, instance=instance_ticket)
+        form_ticket = form.save(commit=False)
+        if form.is_valid():
+            form_ticket.save()
+        return redirect('posts')
+    else :
+        return redirect('flux')
+        
+    

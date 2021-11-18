@@ -16,7 +16,7 @@ Including another URLconf
 from django.conf.urls import include
 from django.contrib import admin
 from django.urls import path
-from LITReview.views import create_user, home_view, flux_view, abos_view, log_user, logout_user, posts_view
+from LITReview.views import create_user, home_view, flux_view, abos_view, log_user, logout_user, modify_view, posts_view
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -32,6 +32,7 @@ urlpatterns = [
     path('flux/log_user', log_user, name= 'log_user'),
     path('logout_user/', logout_user, name= 'logout_user'),
     path('flux/create_review/', include('review.urls' ,namespace='review')),
+    path('posts/modify/<str:content_type>/<int:content_id>', modify_view, name= 'modify'),
 
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

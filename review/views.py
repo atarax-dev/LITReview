@@ -1,3 +1,4 @@
+from django.http.response import HttpResponse
 from django.shortcuts import redirect, render
 
 from review.forms import ReviewForm
@@ -28,6 +29,5 @@ def create_review_view(request, ticket_id):
             # TODO coder la condition
             return redirect('flux')
         else :
-            form = ReviewForm
-            return render(request, 'review/create_review.html', locals())
+            return HttpResponse("raté mais va")
 
