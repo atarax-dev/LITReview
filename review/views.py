@@ -20,6 +20,7 @@ def create_review_view(request, ticket_id):
         print ("request.POST= ", request.POST)
         print ("form.data=", form.data)
         print("ticket id=", ticket_id)
+        print("user=", request.user)
 
         if form.is_valid():
             new_review = form.save(commit=False)

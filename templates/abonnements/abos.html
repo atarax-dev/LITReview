@@ -1,5 +1,12 @@
 {% extends "base_template.html" %}
 {% block title %}Abonnements{% endblock %}
 {% block content %}
-<h1>Yes c'est les abonnements par ici</h1>
+<div class="input-group">
+    <input type="search" class="form-control rounded" placeholder="Entrez un nom d'utilisateur" aria-label="Search"
+        aria-describedby="search-addon" />
+        <form action="#" method = "POST">
+            {% csrf_token %}
+    <button type="submit" class="btn btn-outline-primary">Suivre</button>
+</form>
+</div>
 {% endblock %}

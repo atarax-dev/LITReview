@@ -140,5 +140,15 @@ def modify_view(request, content_type, content_id):
         return redirect('posts')
     else :
         return redirect('flux')
+
+
+def delete_view(request, content_type, content_id):
+    if content_type == "REVIEW":
+        requested_content = Review.objects.get(pk= content_id)
+        requested_content.delete()
         
-    
+    elif content_type == "TICKET":
+        requested_content = Ticket.objects.get(pk= content_id)
+        requested_content.delete()
+
+    return redirect('posts')
