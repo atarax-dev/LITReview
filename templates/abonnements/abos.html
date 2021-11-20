@@ -2,11 +2,25 @@
 {% block title %}Abonnements{% endblock %}
 {% block content %}
 <div class="input-group">
-    <input type="search" class="form-control rounded" placeholder="Entrez un nom d'utilisateur" aria-label="Search"
-        aria-describedby="search-addon" />
-        <form action="#" method = "POST">
-            {% csrf_token %}
-    <button type="submit" class="btn btn-outline-primary">Suivre</button>
-</form>
+    <form action="#" method="POST">
+        {% csrf_token %}
+        <input type="search" name="search" class="form-control rounded" placeholder="Entrez un nom d'utilisateur" aria-label="Search"
+            aria-describedby="search-addon" />
+
+
+        <button type="submit" class="btn btn-outline-primary">Suivre</button>
+    </form>
+</div>
+<div>
+    <h3>Abonnements</h3>
+    {% for userfollow in userfollows %}
+    <p>{{userfollow.followed_user}}</p><a href="unfollow/{{userfollow.followed_user}}"><button type="button">Unfollow</button></a>
+    <br>
+    {% endfor %}
+    <h3>Abonnés</h3>
+    {% for follower in followers %}
+    <p>{{follower.user}}</p>
+    <br>
+    {% endfor %}
 </div>
 {% endblock %}

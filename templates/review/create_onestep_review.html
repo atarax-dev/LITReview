@@ -1,0 +1,17 @@
+{% extends "base_template.html" %}
+{% block title %}Créer une critique{% endblock %}
+{% block content %}
+
+<div class="book">
+    <h3 class="h3ticket">Créer un ticket et une critique</h3>
+    <br>
+    
+    <form action="{% url 'review:onestep' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form1.as_p }}
+        {{ form2.as_p }}
+
+        <input type="submit">
+    </form>
+
+    {% endblock %}

@@ -13,6 +13,7 @@ from review.models import Review
 from ticket.forms import TicketForm
 from ticket.models import Ticket
 from user.models import User
+from userfollows.models import UserFollows
 
 
 def home_view(request):
@@ -49,7 +50,23 @@ def get_user_answered_tickets(userx):
     
 
 def abos_view(request):
-    return render(request, 'abonnements/abos.html')
+    userfollows = get_user_follows(request.user)
+    followers = get_user_followers(request.user)
+
+    if request.method == "POST":
+        print(request.POST)
+        requested_user = request.POST.get("search")
+        print("User requesté = ", requested_user)
+        if username_exists(requested_user):
+            researched_user = search_user(requested_user) 
+            userfollow = UserFollows.objects.create(user = request.user, followed_user = researched_user)
+            return redirect('abos')
+        else:
+            return HttpResponse("L'utilisateur que vous souhaitez suivre n'existe pas. Réessayez")
+
+
+
+    return render(request, 'abonnements/abos.html', locals())
 
 def posts_view(request):
    
@@ -152,3 +169,22 @@ def delete_view(request, content_type, content_id):
         requested_content.delete()
 
     return redirect('posts')
+
+def get_user_follows(userx):
+    follows_list = UserFollows.objects.filter(user= userx)
+    return follows_list
+
+def get_user_followers(userx):
+    followers_list = UserFollows.objects.filter(followed_user= userx)
+    return followers_list
+
+def search_user(userx):
+        user = User.objects.get(username= userx)
+        return user
+
+def unfollow_view(request, username):
+    follow_delete = search_user(username)
+    userfollow = UserFollows.objects.get(user=request.user, followed_user= follow_delete)
+    userfollow.delete()
+    
+    return redirect('abos')
