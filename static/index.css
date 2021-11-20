@@ -179,6 +179,25 @@ header{
     padding: 20px;
     margin: auto 0;
 }
-    
-    
+.follows_snippet{
+    border: solid black 2px;
+    margin: 5px;
+} 
+.username{
+    display: inline-block;
+    margin: auto;
+    padding: auto;
+    width: 90%;
+}
+.unfollowbutton{
+    display: inline-block;
+    margin: auto;
+    padding: auto;
+}   
+.input-group{
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    align-items: center;
+}
     

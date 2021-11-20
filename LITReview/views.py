@@ -8,7 +8,6 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from review.forms import ReviewForm
 
-
 from review.models import Review
 from ticket.forms import TicketForm
 from ticket.models import Ticket
@@ -17,7 +16,7 @@ from userfollows.models import UserFollows
 
 
 def home_view(request):
-    return render(request, 'index.html') 
+    return render(request, 'index.html')
 
 
 @login_required
@@ -26,9 +25,17 @@ def flux_view(request):
     reviews = reviews.annotate(content_type=Value('REVIEW', CharField()))
     tickets = get_all_tickets(request)
     tickets = tickets.annotate(content_type=Value('TICKET', CharField()))
-    posts = sorted(chain(reviews, tickets), key=lambda post: post.time_created, reverse=True)
+    posts = sorted(chain(reviews, tickets),
+                   key=lambda post: post.time_created,
+                   reverse=True)
     answered_tickets = get_user_answered_tickets(request.user)
-    return render(request, 'flux/flux.html', context={'posts': posts, 'answered_tickets':answered_tickets})
+    return render(request,
+                  'flux/flux.html',
+                  context={
+                      'posts': posts,
+                      'answered_tickets': answered_tickets
+                  })
+
 
 def get_all_reviews(request):
     userfollows = get_user_follows(request.user)
@@ -39,9 +46,9 @@ def get_all_reviews(request):
         i += 1
         user_reviews_list = get_user_reviews(userfollow.followed_user)
         reviews_list = reviews_list | user_reviews_list
-        print(reviews_list,i)
+        print(reviews_list, i)
         print("user_reviews_list= ", user_reviews_list)
-    
+
     return reviews_list
 
 
@@ -51,19 +58,18 @@ def get_all_tickets(request):
     for userfollow in userfollows:
         user_tickets_list = get_user_tickets(userfollow.followed_user)
         tickets_list = tickets_list | user_tickets_list
-    
-    
+
     return tickets_list
 
 
 def get_user_answered_tickets(userx):
-    reviews_list = Review.objects.filter(user= userx)
+    reviews_list = Review.objects.filter(user=userx)
     answers_list = []
     for review in reviews_list:
         answer = review.ticket
         answers_list.append(answer)
     return answers_list
-    
+
 
 def abos_view(request):
     userfollows = get_user_follows(request.user)
@@ -74,33 +80,49 @@ def abos_view(request):
         requested_user = request.POST.get("search")
         print("User requesté = ", requested_user)
         if username_exists(requested_user):
-            researched_user = search_user(requested_user) 
-            userfollow = UserFollows.objects.create(user = request.user, followed_user = researched_user)
-            return redirect('abos')
+            researched_user = search_user(requested_user)
+            if researched_user != request.user:
+                for userfollow in userfollows:
+                    if userfollow.followed_user == researched_user:
+                        return HttpResponse("Vous suivez déjà cet utilisateur")
+                    else:
+                        userfollow = UserFollows.objects.create(
+                            user=request.user, followed_user=researched_user)
+                        return redirect('abos')
+
+            else:
+                return HttpResponse("Vous avez trop d'égo")
+
         else:
-            return HttpResponse("L'utilisateur que vous souhaitez suivre n'existe pas. Réessayez")
-
-
+            return HttpResponse(
+                "L'utilisateur que vous souhaitez suivre n'existe pas. Réessayez"
+            )
 
     return render(request, 'abonnements/abos.html', locals())
 
+
 def posts_view(request):
-   
+
     reviews = get_user_reviews(request.user)
     reviews = reviews.annotate(content_type=Value('REVIEW', CharField()))
     tickets = get_user_tickets(request.user)
     tickets = tickets.annotate(content_type=Value('TICKET', CharField()))
-    posts = sorted(chain(reviews, tickets), key=lambda post: post.time_created, reverse=True)
+    posts = sorted(chain(reviews, tickets),
+                   key=lambda post: post.time_created,
+                   reverse=True)
 
     return render(request, 'posts/posts.html', context={'posts': posts})
 
+
 def get_user_reviews(userx):
-    reviews_list = Review.objects.filter(user= userx)
-    return reviews_list 
+    reviews_list = Review.objects.filter(user=userx)
+    return reviews_list
+
 
 def get_user_tickets(userx):
-    tickets_list = Ticket.objects.filter(user= userx)
+    tickets_list = Ticket.objects.filter(user=userx)
     return tickets_list
+
 
 def create_user(request):
     # récupérer les données du formulaire
@@ -109,9 +131,11 @@ def create_user(request):
     pass2 = request.POST.get("pass2")
     if pass1 == pass2 and not username_exists(username):
         user = User.objects.create_user(username, '', pass1)
-        return HttpResponse("Votre compte a été créé. Connectez vous via l'écran de connexion") 
+        return HttpResponse(
+            "Votre compte a été créé. Connectez vous via l'écran de connexion")
     elif pass1 != pass2:
-        return HttpResponse("La confirmation du mot de passe ne correspond pas. Réessayez")
+        return HttpResponse(
+            "La confirmation du mot de passe ne correspond pas. Réessayez")
     else:
         return HttpResponse("Username déjà existant. Réessayez")
     print(username)
@@ -119,9 +143,9 @@ def create_user(request):
     print(pass2)
     # vérifs données du formulaire
     # création utilisateur
-    # afficher vous etes bien créé ou erreur 
+    # afficher vous etes bien créé ou erreur
 
-    return render(request, 'flux/flux.html', locals()) 
+    return render(request, 'flux/flux.html', locals())
 
 
 def username_exists(username):
@@ -134,7 +158,7 @@ def username_exists(username):
 def log_user(request):
     username = request.POST.get("username")
     password = request.POST.get("password")
-    
+
     user = authenticate(username=username, password=password)
     if user is not None:
         login(request, user)
@@ -142,65 +166,79 @@ def log_user(request):
     else:
         return HttpResponse("Compte invalide. Réessayez")
 
+
 def logout_user(request):
     logout(request)
     return redirect('/')
 
+
 def modify_view(request, content_type, content_id):
     if request.method == "GET":
         if content_type == "REVIEW":
-            requested_content = Review.objects.get(pk= content_id)
+            requested_content = Review.objects.get(pk=content_id)
             form = ReviewForm(instance=requested_content)
-            
+
         elif content_type == "TICKET":
-            requested_content = Ticket.objects.get(pk= content_id)
+            requested_content = Ticket.objects.get(pk=content_id)
             form = TicketForm(instance=requested_content)
 
         return render(request, 'ticket/modify.html', locals())
     elif request.method == "POST" and content_type == "REVIEW":
-        instance_review = Review.objects.get(pk= content_id)
-        form = ReviewForm(request.POST, request.FILES, instance=instance_review)
-        form_review = form.save(commit=False)
+        instance_review = Review.objects.get(pk=content_id)
+        form = ReviewForm(request.POST,
+                          request.FILES,
+                          instance=instance_review)
         if form.is_valid():
+            form_review = form.save(commit=False)
             form_review.save()
+        else:
+            return render(request, 'ticket/modify.html', locals())
         return redirect('posts')
     elif request.method == "POST" and content_type == "TICKET":
-        instance_ticket = Ticket.objects.get(pk= content_id)
-        form = TicketForm(request.POST, request.FILES, instance=instance_ticket)
+        instance_ticket = Ticket.objects.get(pk=content_id)
+        form = TicketForm(request.POST,
+                          request.FILES,
+                          instance=instance_ticket)
         form_ticket = form.save(commit=False)
         if form.is_valid():
+            form_ticket = form.save(commit=False)
             form_ticket.save()
+        else:
+            return render(request, 'ticket/modify.html', locals())
         return redirect('posts')
-    else :
-        return redirect('flux')
 
 
 def delete_view(request, content_type, content_id):
     if content_type == "REVIEW":
-        requested_content = Review.objects.get(pk= content_id)
+        requested_content = Review.objects.get(pk=content_id)
         requested_content.delete()
-        
+
     elif content_type == "TICKET":
-        requested_content = Ticket.objects.get(pk= content_id)
+        requested_content = Ticket.objects.get(pk=content_id)
         requested_content.delete()
 
     return redirect('posts')
 
+
 def get_user_follows(userx):
-    follows_list = UserFollows.objects.filter(user= userx)
+    follows_list = UserFollows.objects.filter(user=userx)
     return follows_list
 
+
 def get_user_followers(userx):
-    followers_list = UserFollows.objects.filter(followed_user= userx)
+    followers_list = UserFollows.objects.filter(followed_user=userx)
     return followers_list
 
+
 def search_user(userx):
-        user = User.objects.get(username= userx)
-        return user
+    user = User.objects.get(username=userx)
+    return user
+
 
 def unfollow_view(request, username):
     follow_delete = search_user(username)
-    userfollow = UserFollows.objects.get(user=request.user, followed_user= follow_delete)
+    userfollow = UserFollows.objects.get(user=request.user,
+                                         followed_user=follow_delete)
     userfollow.delete()
-    
+
     return redirect('abos')
