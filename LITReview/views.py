@@ -22,21 +22,37 @@ def home_view(request):
 
 @login_required
 def flux_view(request):
-    reviews = get_all_reviews(request.user)
+    reviews = get_all_reviews(request)
     reviews = reviews.annotate(content_type=Value('REVIEW', CharField()))
-    tickets = get_all_tickets()
+    tickets = get_all_tickets(request)
     tickets = tickets.annotate(content_type=Value('TICKET', CharField()))
     posts = sorted(chain(reviews, tickets), key=lambda post: post.time_created, reverse=True)
     answered_tickets = get_user_answered_tickets(request.user)
     return render(request, 'flux/flux.html', context={'posts': posts, 'answered_tickets':answered_tickets})
 
-def get_all_reviews(user):
-    reviews_list = Review.objects.all()
-    return reviews_list 
+def get_all_reviews(request):
+    userfollows = get_user_follows(request.user)
+    reviews_list = get_user_reviews(request.user)
+    i = 0
+    for userfollow in userfollows:
+        print(userfollow.followed_user)
+        i += 1
+        user_reviews_list = get_user_reviews(userfollow.followed_user)
+        reviews_list = reviews_list | user_reviews_list
+        print(reviews_list,i)
+        print("user_reviews_list= ", user_reviews_list)
+    
+    return reviews_list
 
 
-def get_all_tickets():
-    tickets_list = Ticket.objects.all()
+def get_all_tickets(request):
+    userfollows = get_user_follows(request.user)
+    tickets_list = get_user_tickets(request.user)
+    for userfollow in userfollows:
+        user_tickets_list = get_user_tickets(userfollow.followed_user)
+        tickets_list = tickets_list | user_tickets_list
+    
+    
     return tickets_list
 
 
