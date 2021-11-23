@@ -1,7 +1,6 @@
 from itertools import chain
 
-from django.db.models import CharField, Value, Q
-from django.http import request
+from django.db.models import CharField, Value
 from django.http.response import HttpResponse
 from django.shortcuts import redirect, render
 from django.contrib.auth import authenticate, login, logout
@@ -76,19 +75,16 @@ def abos_view(request):
     followers = get_user_followers(request.user)
 
     if request.method == "POST":
-        print(request.POST)
         requested_user = request.POST.get("search")
-        print("User requesté = ", requested_user)
         if username_exists(requested_user):
             researched_user = search_user(requested_user)
             if researched_user != request.user:
                 for userfollow in userfollows:
                     if userfollow.followed_user == researched_user:
                         return HttpResponse("Vous suivez déjà cet utilisateur")
-                    else:
-                        userfollow = UserFollows.objects.create(
-                            user=request.user, followed_user=researched_user)
-                        return redirect('abos')
+
+                UserFollows.objects.create(user=request.user, followed_user=researched_user)
+                return redirect('abos')
 
             else:
                 return HttpResponse("Vous avez trop d'égo")
@@ -102,7 +98,6 @@ def abos_view(request):
 
 
 def posts_view(request):
-
     reviews = get_user_reviews(request.user)
     reviews = reviews.annotate(content_type=Value('REVIEW', CharField()))
     tickets = get_user_tickets(request.user)
@@ -125,12 +120,11 @@ def get_user_tickets(userx):
 
 
 def create_user(request):
-    # récupérer les données du formulaire
     username = request.POST.get("register_name")
     pass1 = request.POST.get("pass1")
     pass2 = request.POST.get("pass2")
     if pass1 == pass2 and not username_exists(username):
-        user = User.objects.create_user(username, '', pass1)
+        User.objects.create_user(username, '', pass1)
         return HttpResponse(
             "Votre compte a été créé. Connectez vous via l'écran de connexion")
     elif pass1 != pass2:
@@ -138,14 +132,6 @@ def create_user(request):
             "La confirmation du mot de passe ne correspond pas. Réessayez")
     else:
         return HttpResponse("Username déjà existant. Réessayez")
-    print(username)
-    print(pass1)
-    print(pass2)
-    # vérifs données du formulaire
-    # création utilisateur
-    # afficher vous etes bien créé ou erreur
-
-    return render(request, 'flux/flux.html', locals())
 
 
 def username_exists(username):
