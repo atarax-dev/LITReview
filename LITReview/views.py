@@ -39,15 +39,10 @@ def flux_view(request):
 def get_all_reviews(request):
     userfollows = get_user_follows(request.user)
     reviews_list = get_user_reviews(request.user)
-    i = 0
     for userfollow in userfollows:
-        print(userfollow.followed_user)
-        i += 1
         user_reviews_list = get_user_reviews(userfollow.followed_user)
         reviews_list = reviews_list | user_reviews_list
-        print(reviews_list, i)
-        print("user_reviews_list= ", user_reviews_list)
-
+        
     return reviews_list
 
 
@@ -69,7 +64,7 @@ def get_user_answered_tickets(userx):
         answers_list.append(answer)
     return answers_list
 
-
+@login_required
 def abos_view(request):
     userfollows = get_user_follows(request.user)
     followers = get_user_followers(request.user)
@@ -96,7 +91,7 @@ def abos_view(request):
 
     return render(request, 'abonnements/abos.html', locals())
 
-
+@login_required
 def posts_view(request):
     reviews = get_user_reviews(request.user)
     reviews = reviews.annotate(content_type=Value('REVIEW', CharField()))
@@ -157,15 +152,25 @@ def logout_user(request):
     logout(request)
     return redirect('/')
 
-
+@login_required
 def modify_view(request, content_type, content_id):
     if request.method == "GET":
         if content_type == "REVIEW":
-            requested_content = Review.objects.get(pk=content_id)
+            try:
+                requested_content = Review.objects.get(pk=content_id)
+            except:
+                return HttpResponse("Ce contenu n'existe pas")
+            if requested_content.user != request.user:
+                return HttpResponse("Vous n'êtes pas l'auteur de ce contenu")
             form = ReviewForm(instance=requested_content)
 
         elif content_type == "TICKET":
-            requested_content = Ticket.objects.get(pk=content_id)
+            try:
+                requested_content = Ticket.objects.get(pk=content_id)
+            except:
+                return HttpResponse("Ce contenu n'existe pas")
+            if requested_content.user != request.user:
+                return HttpResponse("Vous n'êtes pas l'auteur de ce contenu")
             form = TicketForm(instance=requested_content)
 
         return render(request, 'ticket/modify.html', locals())
