@@ -31,6 +31,6 @@ Installez les packages requis à l'aide de la commande suivante:
 
 Toujours depuis le répertoire qui contient manage.py dans le terminal, exécutez le programme:
 
-`python manage.py runserver`
+`python manage.py migrate` puis `python manage.py runserver`
 
 Puis ouvrez votre navigateur et allez sur la page suivante : http://127.0.0.1:8000/
